@@ -5,11 +5,11 @@ export default class DatabaseSelector extends Component {
         return (
             <div>
                 <input 
-                    // onChange={this.props.selectDatabase}
+                    onChange={this.props.selectDatabase}
                     placeholder="Enter database name..."
                 />
                 <input 
-                    // onChange={this.props.selectSchema}
+                    onChange={this.props.selectSchema}
                     placeholder="Enter schema name..."
                 />
             </div>

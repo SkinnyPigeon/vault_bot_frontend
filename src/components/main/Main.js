@@ -1,18 +1,16 @@
 import React, { Component } from 'react';
-import Table from '../../ui/table/Table';
 import DatabaseSelector from '../../ui/databaseSelector/DatabaseSelector';
 import SubmitButton from '../../ui/submitButton/SubmitButton';
-
-// import styles from './Main.module.css';
+import TablesTable from '../../ui/tablesTable/TablesTable';
 
 export default class Main extends Component {
     state = {
         database: "testing_source",
         schema: "fcrb",
+        tableNames: null,
         table: null,
         columns: null,
         selectedColumns: null,
-
     }
 
     selectDatabase = (e) => {
@@ -27,17 +25,25 @@ export default class Main extends Component {
         })
     }
 
-    // getTable = () => {
-    //     console.log("Getting table...")
-    //     let data = {
-    //         table: null
-    //     }
-    // }
+    selectTable = (e) => {
+        this.setState({
+            table: e.target.innerText
+        })
+    }
+
+    getColumns = () => {
+        let data = {
+            database: this.state.database,
+            schema: this.state.schema,
+            table: this.state.table
+        }
+        console.log(data)
+    }
 
     connectToDB = () => {
         let data = {
-            database: this.props.database,
-            schema: this.props.schema
+            database: this.state.database,
+            schema: this.state.schema
         }
         console.log("Connecting...")
         fetch('http://localhost:5001/connect', {
@@ -47,34 +53,38 @@ export default class Main extends Component {
             },
             body: JSON.stringify(data)
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success:', data);
-            this.setState({
-                tables: data
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                this.setState({
+                    tableNames: data.tableNames
+                })
             })
-            this.showTable();  
-        })
-        .catch((error) => {
-            console.error('Error:', error)
-        });
+            .catch((error) => {
+                console.error('Error:', error)
+            });
     }
 
     componentDidUpdate() {
-        console.log(this.state)
+        if(this.state.table) {
+            this.getColumns();
+        }
+        console.log(this.state);
     }
 
 
     render() {
         return (
             <div>
-                Main
-                <DatabaseSelector 
+                <DatabaseSelector
                     selectDatabase={this.selectDatabase}
                     selectSchema={this.selectSchema}
                 />
-                <SubmitButton getTable={this.getTable}/>
-                <Table />
+                <SubmitButton connectToDB={this.connectToDB} />
+                <TablesTable
+                    tableNames={this.state.tableNames}
+                    selectTable={this.selectTable}
+                />
             </div>
         )
     }
