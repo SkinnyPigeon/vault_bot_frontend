@@ -7,13 +7,17 @@ export default class TablesTable extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        if(this.props.tableNames !== prevProps.tableNames) {
-            this.makeTable();
+        if(JSON.stringify(this.props.rows.sort()) !== JSON.stringify(prevProps.rows.sort())) {
+            this.makeTable()
         }
     }
 
+    componentDidMount() {
+        this.makeTable()
+    }
+
     makeTable = () => {
-        let header = ['Table Names'];
+        let header = [this.props.header];
         let rows = this.generateRows();
         let table = <div>
             <table className='table table-bordered table-hover'>
@@ -34,8 +38,8 @@ export default class TablesTable extends Component {
     }
 
     generateRows = () => {
-        return this.props.tableNames.map(function(name, index) {
-            return <tr key={index} onClick={this.props.selectTable}>
+        return this.props.rows.map(function(name, index) {
+            return <tr key={index} onClick={this.props.select}>
                         <td>{name}</td>
                     </tr>
         }.bind(this))

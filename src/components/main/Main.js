@@ -7,10 +7,24 @@ export default class Main extends Component {
     state = {
         database: "testing_source",
         schema: "fcrb",
-        tableNames: null,
+        tableNames: [],
         table: null,
-        columns: null,
-        selectedColumns: null,
+        columnNames: [],
+        display: null
+    }
+
+    componentDidMount() {
+        let display = <div>
+            <DatabaseSelector
+                selectDatabase={this.selectDatabase}
+                selectSchema={this.selectSchema}
+            />
+            <SubmitButton connectToDB={this.connectToDB} />
+            
+        </div>
+        this.setState({
+            display: display
+        })
     }
 
     selectDatabase = (e) => {
@@ -37,7 +51,23 @@ export default class Main extends Component {
             schema: this.state.schema,
             table: this.state.table
         }
-        console.log(data)
+        console.log("Connecting...")
+        fetch('http://localhost:5001/table', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            this.setState({
+                columnNames: data.columnNames
+            })
+        })
+        .catch((error) => {
+            console.error('Error:', error)
+        });
     }
 
     connectToDB = () => {
@@ -65,26 +95,44 @@ export default class Main extends Component {
             });
     }
 
-    componentDidUpdate() {
-        if(this.state.table) {
-            this.getColumns();
-        }
-        console.log(this.state);
+    checkArrays = (stateArray, prevStateArray) => {
+        return JSON.stringify(stateArray.sort()) !== JSON.stringify(prevStateArray.sort())
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        if(this.checkArrays(this.state.tableNames, prevState.tableNames)) {
+            this.setState({
+                display: <div>
+                    <TablesTable
+                        header="Table Names"
+                        rows={this.state.tableNames}
+                        select={this.selectTable}
+                    />
+                </div>
+                    
+            })
+        }
+        if(this.state.table !== prevState.table) {
+            this.getColumns()
+        }
+        if(this.checkArrays(this.state.columnNames, prevState.columnNames)) {
+            this.setState({
+                display: <div>
+                    <TablesTable
+                        header="Column Names"
+                        rows={this.state.columnNames}
+                        select={this.selectTable}
+                    />
+                </div>
+            })
+        }
+        console.log("STATE: ", this.state)
+    }
 
     render() {
         return (
             <div>
-                <DatabaseSelector
-                    selectDatabase={this.selectDatabase}
-                    selectSchema={this.selectSchema}
-                />
-                <SubmitButton connectToDB={this.connectToDB} />
-                <TablesTable
-                    tableNames={this.state.tableNames}
-                    selectTable={this.selectTable}
-                />
+               {this.state.display}
             </div>
         )
     }
