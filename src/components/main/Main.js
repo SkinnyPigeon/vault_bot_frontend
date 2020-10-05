@@ -10,6 +10,7 @@ export default class Main extends Component {
         tableNames: [],
         table: null,
         columnNames: [],
+        selectedColumns: [],
         display: null
     }
 
@@ -95,6 +96,14 @@ export default class Main extends Component {
             });
     }
 
+    selectColumn = (e) => {
+        let columns = this.state.selectedColumns;
+        columns.push(e.target.innerText)
+        this.setState({
+            selectedColumns: columns
+        })
+    }
+
     checkArrays = (stateArray, prevStateArray) => {
         return JSON.stringify(stateArray.sort()) !== JSON.stringify(prevStateArray.sort())
     }
@@ -121,7 +130,7 @@ export default class Main extends Component {
                     <TablesTable
                         header="Column Names"
                         rows={this.state.columnNames}
-                        select={this.selectTable}
+                        select={this.selectColumn}
                     />
                 </div>
             })
