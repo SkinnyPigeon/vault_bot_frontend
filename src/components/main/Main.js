@@ -10,6 +10,9 @@ export default class Main extends Component {
         tableNames: [],
         table: null,
         columnNames: [],
+        columns: {
+            placeHolder: true
+        },
         selectedColumns: [],
         display: null
     }
@@ -40,9 +43,9 @@ export default class Main extends Component {
         })
     }
 
-    selectTable = (e) => {
+    selectTable = (tableName) => {
         this.setState({
-            table: e.target.innerText
+            table: tableName
         })
     }
 
@@ -62,7 +65,16 @@ export default class Main extends Component {
         })
         .then(response => response.json())
         .then(data => {
+            let columns = {}
+            for(let column in data.columnNames) {
+                console.log(data.columnNames[column])
+                columns[data.columnNames[column]] = {
+                    selected: false,
+                    primaryKey: false
+                }
+            }
             this.setState({
+                columns: columns,
                 columnNames: data.columnNames
             })
         })
@@ -96,11 +108,11 @@ export default class Main extends Component {
             });
     }
 
-    selectColumn = (e) => {
-        let columns = this.state.selectedColumns;
-        columns.push(e.target.innerText)
+    selectColumn = (columnName, value) => {
+        let columns = this.state.columns;
+        columns[columnName][value] = !columns[columnName][value];
         this.setState({
-            selectedColumns: columns
+            columns: columns
         })
     }
 
@@ -113,9 +125,11 @@ export default class Main extends Component {
             this.setState({
                 display: <div>
                     <TablesTable
-                        header="Table Names"
+                        header={["Table Names"]}
                         rows={this.state.tableNames}
                         select={this.selectTable}
+                        selectable={false}
+                        columns={false}
                     />
                 </div>
                     
@@ -128,9 +142,11 @@ export default class Main extends Component {
             this.setState({
                 display: <div>
                     <TablesTable
-                        header="Column Names"
+                        header={["Column Names", "Selected", "Primary Key"]}
                         rows={this.state.columnNames}
                         select={this.selectColumn}
+                        selectable={true}
+                        columns={this.state.columns}
                     />
                 </div>
             })
