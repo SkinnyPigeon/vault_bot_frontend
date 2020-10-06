@@ -4,6 +4,8 @@ import SubmitButton from '../../ui/submitButton/SubmitButton';
 import TablesTable from '../../ui/tablesTable/TablesTable';
 import BackButton from '../../ui/backButton/BackButton';
 
+import styles from './Main.module.css';
+
 export default class Main extends Component {
     state = {
         database: "testing_source",
@@ -21,16 +23,18 @@ export default class Main extends Component {
 
     componentDidMount() {
         let display = <div>
-            <h1>Select Database</h1>
+            <div className={styles.header}>
+                <h1>Select Database</h1>
+            </div>
             <DatabaseSelector
                 selectDatabase={this.selectDatabase}
                 selectSchema={this.selectSchema}
             />
-            <SubmitButton 
-                submit={this.connectToDB} 
+            <SubmitButton
+                submit={this.connectToDB}
                 text="Get Table"
             />
-            
+
         </div>
         this.setState({
             display: display
@@ -100,24 +104,24 @@ export default class Main extends Component {
             },
             body: JSON.stringify(data)
         })
-        .then(response => response.json())
-        .then(data => {
-            let columns = {}
-            for(let column in data.columnNames) {
-                console.log(data.columnNames[column])
-                columns[data.columnNames[column]] = {
-                    selected: false,
-                    primaryKey: false
+            .then(response => response.json())
+            .then(data => {
+                let columns = {}
+                for (let column in data.columnNames) {
+                    console.log(data.columnNames[column])
+                    columns[data.columnNames[column]] = {
+                        selected: false,
+                        primaryKey: false
+                    }
                 }
-            }
-            this.setState({
-                columns: columns,
-                columnNames: data.columnNames
+                this.setState({
+                    columns: columns,
+                    columnNames: data.columnNames
+                })
             })
-        })
-        .catch((error) => {
-            console.error('Error:', error)
-        });
+            .catch((error) => {
+                console.error('Error:', error)
+            });
     }
 
     addSatellite = () => {
@@ -156,7 +160,9 @@ export default class Main extends Component {
     goBackToTableSelection = () => {
         this.setState({
             display: <div>
-                <h1>Select Table</h1>
+                <div className={styles.header}>
+                    <h1>Select Table</h1>
+                </div>
                 <TablesTable
                     header={["Table Names"]}
                     rows={this.state.tableNames}
@@ -177,10 +183,12 @@ export default class Main extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if(this.checkArrays(this.state.tableNames, prevState.tableNames)) {
+        if (this.checkArrays(this.state.tableNames, prevState.tableNames)) {
             this.setState({
                 display: <div>
-                    <h1>Select Table</h1>
+                    <div className={styles.header}>
+                        <h1>Select Table</h1>
+                    </div>
                     <TablesTable
                         header={["Table Names"]}
                         rows={this.state.tableNames}
@@ -191,27 +199,33 @@ export default class Main extends Component {
                 </div>
             })
         }
-        if(this.state.table !== prevState.table && this.state.table) {
+        if (this.state.table !== prevState.table && this.state.table) {
             this.getColumns()
         }
-        if(this.checkArrays(this.state.columnNames, prevState.columnNames)) {
+        if (this.checkArrays(this.state.columnNames, prevState.columnNames)) {
             this.setState({
                 display: <div>
-                    <h1>Select Columns</h1>
-                    <h3>{this.state.table}</h3>
+                    <div className={styles.header}>
+                        <h1>Select Columns</h1>
+                        <h3>{this.state.table}</h3>
+                        <input 
+                            placeholder={"Enter Satellite Name"} 
+                            onChange={this.selectSatellite}
+                        />
+                    </div>
                     <TablesTable
                         header={["Column Names", "Selected", "Primary Key"]}
                         rows={this.state.columnNames}
                         select={this.selectColumn}
                         selectable={true}
                         columns={this.state.columns}
-                        selectSatellite={this.selectSatellite}
+                        // selectSatellite={this.selectSatellite}
                     />
-                    <BackButton 
+                    <BackButton
                         text="Select Database"
                         goBack={this.goBackToTableSelection}
                     />
-                    <SubmitButton 
+                    <SubmitButton
                         text="Add Satellite"
                         submit={this.addSatellite}
                     />
@@ -224,7 +238,7 @@ export default class Main extends Component {
     render() {
         return (
             <div>
-               {this.state.display}
+                {this.state.display}
             </div>
         )
     }

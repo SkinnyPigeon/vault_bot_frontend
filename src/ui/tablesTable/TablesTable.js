@@ -26,14 +26,7 @@ export default class TablesTable extends Component {
     makeTable = () => {
         let header = this.generateHeader();
         let rows = this.generateRows();
-        let satelliteInput = <input 
-            placeholder="Enter Satellite Name..." 
-            onChange={this.props.selectSatellite}
-            className={styles.inputWrapper}
-        />
-        let satellite = this.props.selectable ? satelliteInput : '';
         let table = <div>
-            {satellite}
             <table className='table table-bordered table-hover'>
                 <thead>
                     {header}
