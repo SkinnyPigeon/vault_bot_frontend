@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import styles from './TablesTable.module.css';
 const _ = require('lodash');
 
 export default class TablesTable extends Component {
@@ -28,6 +29,7 @@ export default class TablesTable extends Component {
         let satelliteInput = <input 
             placeholder="Enter Satellite Name..." 
             onChange={this.props.selectSatellite}
+            className={styles.inputWrapper}
         />
         let satellite = this.props.selectable ? satelliteInput : '';
         let table = <div>
