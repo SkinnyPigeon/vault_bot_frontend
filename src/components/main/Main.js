@@ -14,19 +14,22 @@ export default class Main extends Component {
         columns: {
             placeHolder: true
         },
-        selectedColumns: [],
-        satellite: null,
+        satellite: "sat_object_diagnostic_details",
         display: null,
         reset: false
     }
 
     componentDidMount() {
         let display = <div>
+            <h1>Select Database</h1>
             <DatabaseSelector
                 selectDatabase={this.selectDatabase}
                 selectSchema={this.selectSchema}
             />
-            <SubmitButton connectToDB={this.connectToDB} />
+            <SubmitButton 
+                submit={this.connectToDB} 
+                text="Get Table"
+            />
             
         </div>
         this.setState({
@@ -117,6 +120,31 @@ export default class Main extends Component {
         });
     }
 
+    addSatellite = () => {
+        let data = {
+            database: this.state.database,
+            schema: this.state.schema,
+            table: this.state.table,
+            columns: this.state.columns,
+            satellite: this.state.satellite
+        }
+        console.log("Connecting...")
+        fetch('http://localhost:5001/satellite', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error)
+            });
+    }
+
     selectColumn = (columnName, value) => {
         let columns = this.state.columns;
         columns[columnName][value] = !columns[columnName][value];
@@ -128,6 +156,7 @@ export default class Main extends Component {
     goBackToTableSelection = () => {
         this.setState({
             display: <div>
+                <h1>Select Table</h1>
                 <TablesTable
                     header={["Table Names"]}
                     rows={this.state.tableNames}
@@ -151,6 +180,7 @@ export default class Main extends Component {
         if(this.checkArrays(this.state.tableNames, prevState.tableNames)) {
             this.setState({
                 display: <div>
+                    <h1>Select Table</h1>
                     <TablesTable
                         header={["Table Names"]}
                         rows={this.state.tableNames}
@@ -167,6 +197,8 @@ export default class Main extends Component {
         if(this.checkArrays(this.state.columnNames, prevState.columnNames)) {
             this.setState({
                 display: <div>
+                    <h1>Select Columns</h1>
+                    <h3>{this.state.table}</h3>
                     <TablesTable
                         header={["Column Names", "Selected", "Primary Key"]}
                         rows={this.state.columnNames}
@@ -178,6 +210,10 @@ export default class Main extends Component {
                     <BackButton 
                         text="Select Database"
                         goBack={this.goBackToTableSelection}
+                    />
+                    <SubmitButton 
+                        text="Add Satellite"
+                        submit={this.addSatellite}
                     />
                 </div>
             })

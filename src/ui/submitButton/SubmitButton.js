@@ -5,8 +5,8 @@ export default class SubmitButton extends Component {
         return (
             <div>
                 <button
-                    onClick={this.props.connectToDB}
-                >Get Table
+                    onClick={this.props.submit}
+                >{this.props.text}
                 </button>
             </div>
         )
