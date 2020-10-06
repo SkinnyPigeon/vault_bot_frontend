@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import DatabaseSelector from '../../ui/databaseSelector/DatabaseSelector';
 import SubmitButton from '../../ui/submitButton/SubmitButton';
 import TablesTable from '../../ui/tablesTable/TablesTable';
+import BackButton from '../../ui/backButton/BackButton';
 
 export default class Main extends Component {
     state = {
@@ -14,7 +15,9 @@ export default class Main extends Component {
             placeHolder: true
         },
         selectedColumns: [],
-        display: null
+        satellite: null,
+        display: null,
+        reset: false
     }
 
     componentDidMount() {
@@ -47,6 +50,37 @@ export default class Main extends Component {
         this.setState({
             table: tableName
         })
+    }
+
+    selectSatellite = (e) => {
+        this.setState({
+            satellite: e.target.value
+        })
+    }
+
+    connectToDB = () => {
+        let data = {
+            database: this.state.database,
+            schema: this.state.schema
+        }
+        console.log("Connecting...")
+        fetch('http://localhost:5001/connect', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                this.setState({
+                    tableNames: data.tableNames
+                })
+            })
+            .catch((error) => {
+                console.error('Error:', error)
+            });
     }
 
     getColumns = () => {
@@ -83,31 +117,6 @@ export default class Main extends Component {
         });
     }
 
-    connectToDB = () => {
-        let data = {
-            database: this.state.database,
-            schema: this.state.schema
-        }
-        console.log("Connecting...")
-        fetch('http://localhost:5001/connect', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-                this.setState({
-                    tableNames: data.tableNames
-                })
-            })
-            .catch((error) => {
-                console.error('Error:', error)
-            });
-    }
-
     selectColumn = (columnName, value) => {
         let columns = this.state.columns;
         columns[columnName][value] = !columns[columnName][value];
@@ -116,8 +125,26 @@ export default class Main extends Component {
         })
     }
 
+    goBackToTableSelection = () => {
+        this.setState({
+            display: <div>
+                <TablesTable
+                    header={["Table Names"]}
+                    rows={this.state.tableNames}
+                    select={this.selectTable}
+                    selectable={false}
+                    columns={false}
+                />
+            </div>
+        })
+    }
+
     checkArrays = (stateArray, prevStateArray) => {
         return JSON.stringify(stateArray.sort()) !== JSON.stringify(prevStateArray.sort())
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return this.state.reset === nextState.reset;
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -132,10 +159,9 @@ export default class Main extends Component {
                         columns={false}
                     />
                 </div>
-                    
             })
         }
-        if(this.state.table !== prevState.table) {
+        if(this.state.table !== prevState.table && this.state.table) {
             this.getColumns()
         }
         if(this.checkArrays(this.state.columnNames, prevState.columnNames)) {
@@ -147,6 +173,11 @@ export default class Main extends Component {
                         select={this.selectColumn}
                         selectable={true}
                         columns={this.state.columns}
+                        selectSatellite={this.selectSatellite}
+                    />
+                    <BackButton 
+                        text="Select Database"
+                        goBack={this.goBackToTableSelection}
                     />
                 </div>
             })
