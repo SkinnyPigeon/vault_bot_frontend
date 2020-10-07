@@ -16,9 +16,9 @@ export default class Main extends Component {
         columns: {
             placeHolder: true
         },
-        satellite: "sat_object_diagnostic_details",
         display: null,
-        reset: false
+        reset: false,
+        saveSchema: null
     }
 
     componentDidMount() {
@@ -32,7 +32,7 @@ export default class Main extends Component {
             />
             <SubmitButton
                 submit={this.connectToDB}
-                text="Get Table"
+                text="Get Tables"
             />
 
         </div>
@@ -59,11 +59,11 @@ export default class Main extends Component {
         })
     }
 
-    selectSatellite = (e) => {
-        this.setState({
-            satellite: e.target.value
-        })
-    }
+    // selectSatellite = (e) => {
+    //     this.setState({
+    //         satellite: e.target.value
+    //     })
+    // }
 
     setSatellite = (e, columnName) => {
         let columns = this.state.columns;
@@ -139,7 +139,8 @@ export default class Main extends Component {
             schema: this.state.schema,
             table: this.state.table,
             columns: this.state.columns,
-            satellite: this.state.satellite
+            satellite: this.state.satellite,
+            saveSchema: this.state.saveSchema
         }
         console.log("Connecting...")
         fetch('http://localhost:5001/satellite', {
@@ -152,10 +153,17 @@ export default class Main extends Component {
             .then(response => response.json())
             .then(data => {
                 console.log('Success:', data);
+                this.setState({
+                    saveSchema: data.saveSchema
+                })
             })
             .catch((error) => {
                 console.error('Error:', error)
             });
+    }
+
+    wakeUpVaultBot = () => {
+        console.log("Waking up")
     }
 
     selectColumn = (columnName, value) => {
@@ -217,10 +225,10 @@ export default class Main extends Component {
                     <div className={styles.header}>
                         <h1>Select Columns</h1>
                         <h3>{this.state.table}</h3>
-                        <input 
+                        {/* <input 
                             placeholder={"Enter Satellite Name"} 
                             onChange={this.selectSatellite}
-                        />
+                        /> */}
                     </div>
                     <TablesTable
                         header={["Column Names", "Selected", "Primary Key", "Satellite"]}
@@ -231,12 +239,16 @@ export default class Main extends Component {
                         setSatellite={this.setSatellite}
                     />
                     <BackButton
-                        text="Select Database"
+                        text="Select Table"
                         goBack={this.goBackToTableSelection}
                     />
                     <SubmitButton
                         text="Add Satellite"
                         submit={this.addSatellite}
+                    />
+                    <SubmitButton
+                        text="Wake Up Vault Bot"
+                        submit={this.wakeUpVaultBot}
                     />
                 </div>
             })
