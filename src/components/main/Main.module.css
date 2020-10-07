@@ -18,13 +18,14 @@
 .header h3 {
     display: inline;
     position: absolute;
+    right: 0;
     margin: 0;
-    left: 50%;
-    top: 50%;
-    -ms-transform: translate(-50%, -50%);
-    transform: translate(-50%, -50%);
+    padding-right: 20px;
+    top: 57%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
 }
-
+/* 
 .header input {
     position: absolute;
     right: 0;
@@ -32,4 +33,4 @@
     top: 50%;
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
-}
+} */

@@ -59,11 +59,6 @@ export default class Main extends Component {
         })
     }
 
-    // selectSatellite = (e) => {
-    //     this.setState({
-    //         satellite: e.target.value
-    //     })
-    // }
 
     setSatellite = (e, columnName) => {
         let columns = this.state.columns;
@@ -86,16 +81,16 @@ export default class Main extends Component {
             },
             body: JSON.stringify(data)
         })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-                this.setState({
-                    tableNames: data.tableNames
-                })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success: ', data);
+            this.setState({
+                tableNames: data.tableNames
             })
-            .catch((error) => {
-                console.error('Error:', error)
-            });
+        })
+        .catch(error => {
+            console.error('Error: ', error)
+        });
     }
 
     getColumns = () => {
@@ -112,25 +107,27 @@ export default class Main extends Component {
             },
             body: JSON.stringify(data)
         })
-            .then(response => response.json())
-            .then(data => {
-                let columns = {}
-                for (let column in data.columnNames) {
-                    console.log(data.columnNames[column])
-                    columns[data.columnNames[column]] = {
-                        selected: false,
-                        primaryKey: false,
-                        satellite: null
-                    }
+        .then(response => response.json())
+        .then(data => {
+            let columns = {}
+            let columnNames = []
+            Object.keys(data).forEach(key => {
+                columns[key] = {
+                    selected: false,
+                    primaryKey: false,
+                    satellite: null,
+                    dataType: data[key]
                 }
-                this.setState({
-                    columns: columns,
-                    columnNames: data.columnNames
-                })
+                columnNames.push(key)
             })
-            .catch((error) => {
-                console.error('Error:', error)
-            });
+            this.setState({
+                columns: columns,
+                columnNames: columnNames
+            })
+        })
+        .catch(error => {
+            console.error('Error: ', error)
+        });
     }
 
     addSatellite = () => {
@@ -150,20 +147,37 @@ export default class Main extends Component {
             },
             body: JSON.stringify(data)
         })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Success:', data);
-                this.setState({
-                    saveSchema: data.saveSchema
-                })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success: ', data);
+            this.setState({
+                saveSchema: data.saveSchema
             })
-            .catch((error) => {
-                console.error('Error:', error)
-            });
+        })
+        .catch(error => {
+            console.error('Error: ', error)
+        });
     }
 
     wakeUpVaultBot = () => {
         console.log("Waking up")
+        let data = {
+            schema: this.state.saveSchema
+        }
+        fetch('http://localhost:5001/vaultbot', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success: ', data);
+        })
+        .catch(error => {
+            console.error('Error: ', error)
+        })
     }
 
     selectColumn = (columnName, value) => {
@@ -224,11 +238,7 @@ export default class Main extends Component {
                 display: <div>
                     <div className={styles.header}>
                         <h1>Select Columns</h1>
-                        <h3>{this.state.table}</h3>
-                        {/* <input 
-                            placeholder={"Enter Satellite Name"} 
-                            onChange={this.selectSatellite}
-                        /> */}
+                        <h3>Table: {this.state.table}</h3>
                     </div>
                     <TablesTable
                         header={["Column Names", "Selected", "Primary Key", "Satellite"]}
