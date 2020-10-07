@@ -65,6 +65,14 @@ export default class Main extends Component {
         })
     }
 
+    setSatellite = (e, columnName) => {
+        let columns = this.state.columns;
+        columns[columnName].satellite = e.target.value;
+        this.setState({
+            columns: columns
+        })
+    }
+
     connectToDB = () => {
         let data = {
             database: this.state.database,
@@ -111,7 +119,8 @@ export default class Main extends Component {
                     console.log(data.columnNames[column])
                     columns[data.columnNames[column]] = {
                         selected: false,
-                        primaryKey: false
+                        primaryKey: false,
+                        satellite: null
                     }
                 }
                 this.setState({
@@ -214,12 +223,12 @@ export default class Main extends Component {
                         />
                     </div>
                     <TablesTable
-                        header={["Column Names", "Selected", "Primary Key"]}
+                        header={["Column Names", "Selected", "Primary Key", "Satellite"]}
                         rows={this.state.columnNames}
                         select={this.selectColumn}
                         selectable={true}
                         columns={this.state.columns}
-                        // selectSatellite={this.selectSatellite}
+                        setSatellite={this.setSatellite}
                     />
                     <BackButton
                         text="Select Database"
