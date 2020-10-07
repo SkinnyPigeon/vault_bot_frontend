@@ -10,21 +10,41 @@ export default class TablesTable extends Component {
         list: []
     }
 
+    componentDidMount() {
+        console.log("MOUNTING")
+        this.makeTable()
+    }
+
+    componentWillUnmount() {
+        console.log("UNMOUNTING")
+        this.setState({
+            table: null,
+            columns: {},
+            list: []
+        })
+    }
+
     componentDidUpdate(prevProps, prevState) {
         console.log("PROPS: ", this.props)
         if(JSON.stringify(this.props.rows.sort()) !== JSON.stringify(prevProps.rows.sort())) {
+            this.setState({
+                table: null,
+                columns: {},
+                list: []
+            })
             this.makeTable();
         }
         if(!_.isEqual(this.props.columns, prevProps.columns)) {
+            this.setState({
+                table: null,
+                columns: {},
+                list: []
+            })
             this.makeTable();
         }
         if(!_.isEqual(this.state.list, prevState.list)) {
             this.makeTable()
         }
-    }
-
-    componentDidMount() {
-        this.makeTable()
     }
 
     makeTable = () => {
