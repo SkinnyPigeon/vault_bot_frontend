@@ -162,7 +162,7 @@ export default class Main extends Component {
     wakeUpVaultBot = () => {
         console.log("Waking up")
         let data = {
-            schema: this.state.saveSchema
+            saveSchema: this.state.saveSchema
         }
         fetch('http://localhost:5001/vaultbot', {
             method: 'POST',
@@ -171,9 +171,15 @@ export default class Main extends Component {
             },
             body: JSON.stringify(data)
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Success: ', data);
+        .then(response => response.blob())
+        .then(blob => {
+            const url = window.URL.createObjectURL(new Blob([blob]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${this.state.database}.py`);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
         })
         .catch(error => {
             console.error('Error: ', error)
